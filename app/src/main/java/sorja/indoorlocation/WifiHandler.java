@@ -115,5 +115,9 @@ public class WifiHandler extends BroadcastReceiver{
     public void setWriting(boolean writing) {
         this.writing = writing;
     }
+
+    public List<ScanPrint> getCurrentFingerprint() {
+        return allResults;
+    }
 }
 

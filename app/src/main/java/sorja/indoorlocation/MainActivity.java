@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity
     // change title to floor
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        touch.setDrawing(false);
         touch.showLocation();
         switch (item.getItemId()) {
             case R.id.switchId:

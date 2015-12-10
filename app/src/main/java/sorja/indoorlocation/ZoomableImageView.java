@@ -227,11 +227,16 @@ public class ZoomableImageView extends ImageView
         maxScale = x;
     }
 
+    public void setDrawing(Boolean drawing){
+        this.drawing = drawing;
+    }
+
     public void showLocation() {
-        Location location = new Location(getContext());
+        drawing = false;
+        wifiHandler.setWriting(false);
+        Location location = new Location(getContext(), wifiHandler.getCurrentFingerprint());
         Point p = location.getLocation();
         drawCircle(p.x, p.y);
-        wifiHandler.setWriting(false);
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener

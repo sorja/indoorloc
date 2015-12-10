@@ -30,4 +30,20 @@ public class FingerPrint {
                 "mac: " + mac + "|" +
                 "timestamp=" + timestamp;
     }
+
+    public String getSsid() {
+        return ssid;
+    }
+
+    public String getMac() {
+        return mac;
+    }
+
+    public int getRssi() {
+        return rssi;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
 }
