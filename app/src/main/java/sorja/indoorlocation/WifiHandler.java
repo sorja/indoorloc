@@ -8,6 +8,13 @@ import android.net.wifi.WifiManager;
 import android.content.Context;
 import android.util.Log;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,8 +24,11 @@ import java.util.List;
 public class WifiHandler extends BroadcastReceiver{
     private final String TAG =  "BroadcastReceiver";
     WifiManager wifiManager;
-    List<ScanResult> scanResults;
     Context context;
+    private List<ScanPrint> allResults = new ArrayList<>();
+    private float x;
+    private float y;
+    private float z;
 
     public WifiHandler(Context context) {
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -36,25 +46,59 @@ public class WifiHandler extends BroadcastReceiver{
         context.getApplicationContext().unregisterReceiver(this);
     }
 
-    public List<ScanResult> scan(){
+    public void scan(){
+        Log.d(TAG, context.getFilesDir()+"");
         if (!wifiManager.isWifiEnabled()) wifiManager.setWifiEnabled(true);
         wifiManager.startScan();
-        return scanResults;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        scanResults = wifiManager.getScanResults();
+        List<ScanResult> scanResults  = wifiManager.getScanResults();
         for (ScanResult s : scanResults) {
             if(s.level > -1) return;
             String ssid = s.SSID;
             String mac = s.BSSID;
             int rssi = s.level;
             long timestamp = s.timestamp;
+            allResults.add(new ScanPrint(ssid, rssi, mac, timestamp, x, y, z));
+        }
+        String filename = "scanresults.kryo";
+        Output outputStream;
 
-            FingerPrint fingerPrint = new FingerPrint(ssid, rssi, mac, timestamp);
-            Log.d(TAG, fingerPrint.toJson());
+        Kryo kryo = new Kryo();
+
+        try {
+            outputStream = new Output(context.openFileOutput(filename + ".tmp", Context.MODE_PRIVATE));
+            kryo.writeObject(outputStream, allResults);
+            outputStream.close();
+            
+            String path = context.getFilesDir().getAbsolutePath();
+            try {
+                new File(path+"/"+filename).renameTo(new File(path+"/"+filename + ".old"));
+            } catch (Exception ex) {}
+            new File(path+"/"+filename+".tmp").renameTo(new File(path+"/"+filename));
+
+            try {
+                new File(path+"/"+filename + ".old").delete();
+            } catch(Exception ex){}
+
+            Input juuh = new Input(context.openFileInput(filename));
+            List<ScanPrint> asd = kryo.readObject(juuh, allResults.getClass());
+            Log.d(TAG, asd.toString());
+            juuh.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
+    }
+
+    public void setPoints(float x1, float y1) {
+        this.x = x1;
+        this.y = y1;
+    }
+
+    public void setFloor(int z){
+        this.z = (float)z;
     }
 }

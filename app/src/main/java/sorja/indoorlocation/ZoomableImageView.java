@@ -2,10 +2,16 @@ package sorja.indoorlocation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PointF;
+import android.net.wifi.WifiManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -14,8 +20,9 @@ import android.widget.ImageView;
 public class ZoomableImageView extends ImageView
 {
     private String TAG = "ZoomableImageView";
+    private GestureDetector gestureDetector;
     Matrix matrix = new Matrix();
-
+    Bitmap bitmap;
     static final int NONE = 0;
     static final int DRAG = 1;
     static final int ZOOM = 2;
@@ -35,6 +42,10 @@ public class ZoomableImageView extends ImageView
 
     ScaleGestureDetector mScaleDetector;
     Context context;
+    public int floor = -1;
+
+    boolean drawing = true;
+    WifiHandler wifiHandler;
 
     public ZoomableImageView(Context context, AttributeSet attr)
     {
@@ -47,19 +58,54 @@ public class ZoomableImageView extends ImageView
         setImageMatrix(matrix);
         setScaleType(ScaleType.MATRIX);
 
+        gestureDetector = new GestureDetector(context, new SingleTapConfirm());
+
         setOnTouchListener(new OnTouchListener()
         {
 
             @Override
             public boolean onTouch(View v, MotionEvent event)
             {
-                Log.d(TAG, "X" + event.getX() + " Y" + event.getY());
                 mScaleDetector.onTouchEvent(event);
 
                 matrix.getValues(m);
                 float x = m[Matrix.MTRANS_X];
                 float y = m[Matrix.MTRANS_Y];
                 PointF curr = new PointF(event.getX(), event.getY());
+
+                if (gestureDetector.onTouchEvent(event)) {
+                    float eventX = event.getX();
+                    float eventY = event.getY();
+                    float[] eventXY = new float[] {eventX, eventY};
+
+                    Matrix invertMatrix = new Matrix();
+                    matrix.invert(invertMatrix);
+
+                    invertMatrix.mapPoints(eventXY);
+                    float x1 = Integer.valueOf((int)eventXY[0]);
+                    float y1 = Integer.valueOf((int)eventXY[1]);
+
+
+
+                    if(x1 < 0){
+                        x1 = 0;
+                    }else if(x1 > bmWidth-1){
+                        x1 = bmWidth-1;
+                    }
+
+                    if(y1 < 0){
+                        y1 = 0;
+                    }else if(y1 > bmHeight){
+                        y1 = bmHeight-1;
+                    }
+
+                    if(drawing){
+                        draw(x1, y1);
+                    }
+
+                    wifiHandler.setPoints(x1, y1);
+                    Log.d(TAG, x1 + " --- " + y1);
+                }
 
                 switch (event.getAction())
                 {
@@ -148,7 +194,21 @@ public class ZoomableImageView extends ImageView
                 return true;
             }
 
+            private void draw(float x1, float y1) {
+                Paint paint = new Paint();
+                paint.setColor(Color.RED);
+                Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                setImageBitmap(mutableBitmap);
+                Canvas canvas = new Canvas(mutableBitmap);
+                canvas.drawBitmap(mutableBitmap, new Matrix(), null);
+                canvas.drawCircle(x1, y1, 25, paint);
+            }
+
         });
+    }
+
+    public void setwifiHandler(WifiHandler wifiHandler){
+        this.wifiHandler = wifiHandler;
     }
 
     @Override
@@ -157,6 +217,7 @@ public class ZoomableImageView extends ImageView
         super.setImageBitmap(bm);
         bmWidth = bm.getWidth();
         bmHeight = bm.getHeight();
+        bitmap = bm;
     }
 
     public void setMaxZoom(float x)
@@ -268,5 +329,13 @@ public class ZoomableImageView extends ImageView
         right = width * saveScale - width - (2 * redundantXSpace * saveScale);
         bottom = height * saveScale - height - (2 * redundantYSpace * saveScale);
         setImageMatrix(matrix);
+    }
+
+    private class SingleTapConfirm extends SimpleOnGestureListener {
+        public SingleTapConfirm(){}
+        @Override
+        public boolean onSingleTapUp(MotionEvent event) {
+            return true;
+        }
     }
 }

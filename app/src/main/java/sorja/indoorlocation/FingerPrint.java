@@ -14,6 +14,7 @@ public class FingerPrint {
     private int rssi;
     private long timestamp;
 
+    public FingerPrint(){}
     public FingerPrint(String ssid, int rssi, String mac, long timestamp) {
         this.ssid = ssid;
         this.rssi = rssi;

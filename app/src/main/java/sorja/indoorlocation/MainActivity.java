@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import java.util.List;
 import java.util.Random;
+
 import sorja.indoorlocation.WifiHandler;
 
 public class MainActivity extends AppCompatActivity
@@ -46,14 +47,16 @@ public class MainActivity extends AppCompatActivity
         /***********************
          * Non generated stuff *
          ***********************/
+        wifiHandler = new WifiHandler(this);
+        floor = -1;
         touch = (ZoomableImageView) findViewById(R.id.imageView);
+        ((ZoomableImageView) findViewById(R.id.imageView)).floor = -1;
         /*png to bm*/
         bm = BitmapFactory.decodeResource(getResources(), R.drawable.exactum1);
-        touch.setImageBitmap(bm);
+        Bitmap bmOverlay = Bitmap.createBitmap(bm.getWidth(), bm.getHeight(), bm.getConfig());
+        touch.setImageBitmap(bmOverlay);
+        touch.setwifiHandler(wifiHandler);
 
-        floor = -1;
-
-        wifiHandler = new WifiHandler(this);
         wifiHandler.scan();
 
         /**********************
@@ -87,13 +90,14 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    // stop mapping here
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.switchId:
                 mapping = !item.isChecked();
                 item.setChecked(mapping);
-                if(mapping){
+                if (mapping) {
                     Random rnd = new Random();
                     toolbar.setTitleTextColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
                     Toast.makeText(getApplicationContext(), "Started mapping",
@@ -118,32 +122,38 @@ public class MainActivity extends AppCompatActivity
             case R.id.floor0:
                 bm = BitmapFactory.decodeResource(getResources(), R.drawable.exactumk);
                 touch.setImageBitmap(bm);
-                floor =  0;
+                floor = 0;
+                ((ZoomableImageView) findViewById(R.id.imageView)).floor = floor;
                 break;
             case R.id.floor1:
                 bm = BitmapFactory.decodeResource(getResources(), R.drawable.exactum1);
                 touch.setImageBitmap(bm);
                 floor = 1;
+                ((ZoomableImageView) findViewById(R.id.imageView)).floor = floor;
                 break;
             case R.id.floor2:
                 bm = BitmapFactory.decodeResource(getResources(), R.drawable.exactum2);
                 touch.setImageBitmap(bm);
                 floor = 2;
+                ((ZoomableImageView) findViewById(R.id.imageView)).floor = floor;
                 break;
             case R.id.floor3:
                 bm = BitmapFactory.decodeResource(getResources(), R.drawable.exactum3);
                 touch.setImageBitmap(bm);
                 floor = 3;
+                ((ZoomableImageView) findViewById(R.id.imageView)).floor = floor;
                 break;
             case R.id.floor4:
                 bm = BitmapFactory.decodeResource(getResources(), R.drawable.exactum4);
                 touch.setImageBitmap(bm);
                 floor = 4;
+                ((ZoomableImageView) findViewById(R.id.imageView)).floor = floor;
                 break;
             default:
                 bm = BitmapFactory.decodeResource(getResources(), R.drawable.exactumk);
                 touch.setImageBitmap(bm);
                 floor = 0;
+                ((ZoomableImageView) findViewById(R.id.imageView)).floor = floor;
                 break;
         }
 
