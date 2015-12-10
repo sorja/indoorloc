@@ -64,7 +64,42 @@ public class Location {
         }
         Log.d(TAG, "------------------------------------------------");
 
+        p = closestSingleFingerPrint(results);
+
         return p;
+    }
+
+
+    /*
+    *  Lets get the closest match in very unefficient and confusing way:
+    *  we initialize smallest as integers max value and our coffee variable is holding a null at start
+    *  if we find a mac == mac match, we check which is the smallest eucl. distance and save them.
+    * */
+    private Point closestSingleFingerPrint(ArrayList<ScanPrint> results) {
+        double smallest = Integer.MAX_VALUE;
+        ScanPrint кофе = null;
+
+        for (ScanPrint result : results) {
+            for (ScanPrint fingerPrint: fingerprint) {
+                if(!result.getMac().equals(fingerPrint.getMac()))
+                    continue;
+
+                double Евклидова_метрика = getEuclideanDistance(
+                        fingerPrint.getPoint(), result.getPoint());
+                if(smallest > Евклидова_метрика){
+                    smallest = Евклидова_метрика;
+                    кофе = fingerPrint;
+                }
+            }
+        }
+
+        return кофе.getPoint();
+    }
+
+    private Double getEuclideanDistance(Point p1, Point p2) {
+        int pow1 = (int) Math.pow((p1.x - p2.x),2);
+        int pow2 = (int) Math.pow((p1.y - p2.y),2);
+        return Math.sqrt(pow1+pow2);
     }
 
     private ScanPrint closest(ScanPrint fp) {
@@ -101,4 +136,5 @@ public class Location {
         }
 
     }
+
 }

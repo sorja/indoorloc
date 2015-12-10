@@ -5,5 +5,17 @@
         android:id="@+id/switchId"
         android:actionLayout="@layout/switch_layout"
         app:showAsAction="always"
-        android:title="MAP"/>
+        android:title="FIND"/>
+    <item
+        android:id="@+id/stopscan"
+        android:actionLayout="@layout/switch_layout"
+        app:showAsAction="always"
+        android:title="STOP"/>
+    <item
+    android:id="@+id/startscan"
+    android:actionLayout="@layout/switch_layout"
+    app:showAsAction="always"
+    android:title="START"/>
+
+
 </menu>

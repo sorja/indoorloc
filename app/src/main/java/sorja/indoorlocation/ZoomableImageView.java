@@ -101,10 +101,11 @@ public class ZoomableImageView extends ImageView
                     }
 
                     if(drawing){
-                        drawCircle(x1, y1);
+                        drawCircle(x1, y1, Color.RED);
                     }
 
                     wifiHandler.setPoints(x1, y1, floor);
+                    wifiHandler.scan();
                     Log.d(TAG, x1 + " --- " + y1);
                 }
 
@@ -203,9 +204,9 @@ public class ZoomableImageView extends ImageView
     public void setwifiHandler(WifiHandler wifiHandler){
         this.wifiHandler = wifiHandler;
     }
-    public  void drawCircle(float x1, float y1) {
+    public  void drawCircle(float x1, float y1, int color) {
         Paint paint = new Paint();
-        paint.setColor(Color.RED);
+        paint.setColor(color);
         Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         setImageBitmap(mutableBitmap);
         Canvas canvas = new Canvas(mutableBitmap);
@@ -236,7 +237,7 @@ public class ZoomableImageView extends ImageView
         wifiHandler.setWriting(false);
         Location location = new Location(getContext(), wifiHandler.getCurrentFingerprint());
         Point p = location.getLocation();
-        drawCircle(p.x, p.y);
+        drawCircle(p.x, p.y, Color.CYAN);
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener

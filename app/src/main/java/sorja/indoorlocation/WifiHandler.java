@@ -69,6 +69,9 @@ public class WifiHandler extends BroadcastReceiver{
             allResults.add(new ScanPrint(ssid, rssi, mac, timestamp, x, y, z));
         }
         if (writing) writeToFile(context);
+
+        Toast.makeText(context, "Scanning done.", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Scanned.");
     }
 
     private void writeToFile(Context context) {
@@ -98,7 +101,6 @@ public class WifiHandler extends BroadcastReceiver{
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Toast.makeText(context, "Printing done.", Toast.LENGTH_SHORT);
     }
 
     public void setPoints(float x1, float y1, int z) {

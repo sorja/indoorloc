@@ -1,5 +1,7 @@
 package sorja.indoorlocation;
 
+import android.graphics.Point;
+
 /**
  * Created by mxO on 6.12.2015.
  */
@@ -28,5 +30,9 @@ public class ScanPrint extends FingerPrint {
 
     public float getZ() {
         return z;
+    }
+
+    public Point getPoint() {
+        return new Point( (int) x , (int) y);
     }
 }
