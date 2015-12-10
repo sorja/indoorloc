@@ -40,7 +40,7 @@ public class Location {
         Point p = new Point();
         ArrayList<ScanPrint> results = new ArrayList<>();
         fetchFromFile();
-        if(scanresults.isEmpty()) return null;
+        if(scanresults.isEmpty()) return p;
         /*
         * Here we loop the CURRENT fingerprint and compare to the list of fingerprints we have
         * SO O(n^2)
@@ -69,7 +69,7 @@ public class Location {
 
     private ScanPrint closest(ScanPrint fp) {
         int n = fp.getRssi();
-        if(n <= 0) return null;
+        if(n >= 0) return null;
         int dist = Math.abs(scanresults.get(0).getRssi() - n);
         ScanPrint closest = null;
 
@@ -88,15 +88,16 @@ public class Location {
     }
 
     private void fetchFromFile() {
+        List<ScanPrint> kiitosjava2015 = new ArrayList<>();
         try {
             input = new Input(context.openFileInput(filename));
-            scanresults = kryo.readObject(input, scanresults.getClass());
+            kiitosjava2015 = kryo.readObject(input, scanresults.getClass());
             input.close();
         } catch (Exception e) {e.printStackTrace();}
-        Iterator<ScanPrint> iter = scanresults.iterator();
-        while (iter.hasNext()){
-            ScanPrint s = iter.next();
-            if (s.x <= 0 || s.y <= 0 || s.z <= -2) iter.remove();
+        Iterator<ScanPrint> сука = kiitosjava2015.iterator();
+        while (сука.hasNext()){
+            ScanPrint s = сука.next();
+            if (s.x > 0 && s.y > 0 && s.z > -2) scanresults.add(s);
         }
 
     }
