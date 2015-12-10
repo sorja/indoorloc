@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -39,6 +40,7 @@ public class Location {
         Point p = new Point();
         ArrayList<ScanPrint> results = new ArrayList<>();
         fetchFromFile();
+        if(scanresults.isEmpty()) return null;
         /*
         * Here we loop the CURRENT fingerprint and compare to the list of fingerprints we have
         * SO O(n^2)
@@ -49,6 +51,7 @@ public class Location {
             results.add(_fp);
         }
 
+        Log.d(TAG, "------------------------------------------------");
         for (ScanPrint s : results) {
             String theString = String.format("" +
                     "X: %f\t"+
@@ -59,12 +62,14 @@ public class Location {
                     "ssid: %s\t" ,s.x,s.y,s.z,s.getMac(), s.getRssi(), s.getSsid());
             Log.d(TAG, theString);
         }
+        Log.d(TAG, "------------------------------------------------");
 
         return p;
     }
 
     private ScanPrint closest(ScanPrint fp) {
         int n = fp.getRssi();
+        if(n <= 0) return null;
         int dist = Math.abs(scanresults.get(0).getRssi() - n);
         ScanPrint closest = null;
 
@@ -87,11 +92,12 @@ public class Location {
             input = new Input(context.openFileInput(filename));
             scanresults = kryo.readObject(input, scanresults.getClass());
             input.close();
-            for (ScanPrint s : scanresults) {
-                if (s.x <= 0) scanresults.remove(s);
-                if (s.y <= 0) scanresults.remove(s);
-                if (s.z <= -2) scanresults.remove(s);
-            }
         } catch (Exception e) {e.printStackTrace();}
+        Iterator<ScanPrint> iter = scanresults.iterator();
+        while (iter.hasNext()){
+            ScanPrint s = iter.next();
+            if (s.x <= 0 || s.y <= 0 || s.z <= -2) iter.remove();
+        }
+
     }
 }
