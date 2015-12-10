@@ -7,6 +7,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -29,6 +30,7 @@ public class WifiHandler extends BroadcastReceiver{
     private float x;
     private float y;
     private float z;
+    private boolean writing;
 
     public WifiHandler(Context context) {
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -55,6 +57,9 @@ public class WifiHandler extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         List<ScanResult> scanResults  = wifiManager.getScanResults();
+        if(x <= 0) return;
+        if(y <= 0) return;
+        if(z <= -2) return;
         for (ScanResult s : scanResults) {
             if(s.level > -1) return;
             String ssid = s.SSID;
@@ -63,6 +68,10 @@ public class WifiHandler extends BroadcastReceiver{
             long timestamp = s.timestamp;
             allResults.add(new ScanPrint(ssid, rssi, mac, timestamp, x, y, z));
         }
+        if (writing) writeToFile(context);
+    }
+
+    private void writeToFile(Context context) {
         String filename = "scanresults.kryo";
         Output outputStream;
 
@@ -72,7 +81,7 @@ public class WifiHandler extends BroadcastReceiver{
             outputStream = new Output(context.openFileOutput(filename + ".tmp", Context.MODE_PRIVATE));
             kryo.writeObject(outputStream, allResults);
             outputStream.close();
-            
+
             String path = context.getFilesDir().getAbsolutePath();
             try {
                 new File(path+"/"+filename).renameTo(new File(path+"/"+filename + ".old"));
@@ -85,20 +94,26 @@ public class WifiHandler extends BroadcastReceiver{
 
             Input juuh = new Input(context.openFileInput(filename));
             List<ScanPrint> asd = kryo.readObject(juuh, allResults.getClass());
-            Log.d(TAG, asd.toString());
             juuh.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        Toast.makeText(context, "Printing done.", Toast.LENGTH_SHORT);
     }
 
-    public void setPoints(float x1, float y1) {
+    public void setPoints(float x1, float y1, int z) {
         this.x = x1;
         this.y = y1;
+//        ????
+        setFloor(z);
     }
 
     public void setFloor(int z){
         this.z = (float)z;
     }
+
+    public void setWriting(boolean writing) {
+        this.writing = writing;
+    }
 }
+

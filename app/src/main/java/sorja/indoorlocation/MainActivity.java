@@ -3,7 +3,6 @@ package sorja.indoorlocation;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.wifi.ScanResult;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -11,15 +10,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
-import java.util.List;
 import java.util.Random;
 
-import sorja.indoorlocation.WifiHandler;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -56,7 +51,7 @@ public class MainActivity extends AppCompatActivity
         Bitmap bmOverlay = Bitmap.createBitmap(bm.getWidth(), bm.getHeight(), bm.getConfig());
         touch.setImageBitmap(bmOverlay);
         touch.setwifiHandler(wifiHandler);
-
+        wifiHandler.setFloor(floor);
         wifiHandler.scan();
 
         /**********************
@@ -91,8 +86,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     // stop mapping here
+    // change title to floor
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        touch.showLocation();
         switch (item.getItemId()) {
             case R.id.switchId:
                 mapping = !item.isChecked();

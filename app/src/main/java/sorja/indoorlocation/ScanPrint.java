@@ -8,6 +8,9 @@ public class ScanPrint extends FingerPrint {
     float y;
     float z;
 
+    public ScanPrint() {
+    }
+
     public ScanPrint(String ssid, int rssi, String mac, long timestamp, float x, float y, float z) {
         super(ssid, rssi, mac, timestamp);
         this.x = x;

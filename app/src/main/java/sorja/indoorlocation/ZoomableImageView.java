@@ -6,8 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PointF;
-import android.net.wifi.WifiManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -42,10 +42,11 @@ public class ZoomableImageView extends ImageView
 
     ScaleGestureDetector mScaleDetector;
     Context context;
-    public int floor = -1;
 
     boolean drawing = true;
     WifiHandler wifiHandler;
+
+    public int floor;
 
     public ZoomableImageView(Context context, AttributeSet attr)
     {
@@ -100,10 +101,10 @@ public class ZoomableImageView extends ImageView
                     }
 
                     if(drawing){
-                        draw(x1, y1);
+                        drawCircle(x1, y1);
                     }
 
-                    wifiHandler.setPoints(x1, y1);
+                    wifiHandler.setPoints(x1, y1, floor);
                     Log.d(TAG, x1 + " --- " + y1);
                 }
 
@@ -194,15 +195,7 @@ public class ZoomableImageView extends ImageView
                 return true;
             }
 
-            private void draw(float x1, float y1) {
-                Paint paint = new Paint();
-                paint.setColor(Color.RED);
-                Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-                setImageBitmap(mutableBitmap);
-                Canvas canvas = new Canvas(mutableBitmap);
-                canvas.drawBitmap(mutableBitmap, new Matrix(), null);
-                canvas.drawCircle(x1, y1, 25, paint);
-            }
+
 
         });
     }
@@ -210,7 +203,16 @@ public class ZoomableImageView extends ImageView
     public void setwifiHandler(WifiHandler wifiHandler){
         this.wifiHandler = wifiHandler;
     }
-
+    public  void drawCircle(float x1, float y1) {
+        Paint paint = new Paint();
+        paint.setColor(Color.RED);
+        Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        setImageBitmap(mutableBitmap);
+        Canvas canvas = new Canvas(mutableBitmap);
+        canvas.drawBitmap(mutableBitmap, new Matrix(), null);
+        canvas.drawCircle(x1, y1, 25, paint);
+        invalidate();
+    }
     @Override
     public void setImageBitmap(Bitmap bm)
     {
@@ -223,6 +225,13 @@ public class ZoomableImageView extends ImageView
     public void setMaxZoom(float x)
     {
         maxScale = x;
+    }
+
+    public void showLocation() {
+        Location location = new Location(getContext());
+        Point p = location.getLocation();
+        drawCircle(p.x, p.y);
+        wifiHandler.setWriting(false);
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
